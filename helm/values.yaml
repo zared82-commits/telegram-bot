@@ -1,6 +1,6 @@
 image:
   registry: "ghcr.io"
   repository: "zared82/kbot"
-  tag: "v1.0.0-038ad38-linux-amd64"
+  tag: "v1.0.0-e7e96f1-linux-amd64"
 
 replicaCount: 1
