@@ -1,0 +1,50 @@
+name: CI-CD
+
+on:
+  push:
+    branches: [ "develop" ]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Test
+        run: |
+          cd telegram-bot
+          go test ./...
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push
+        run: |
+          SHA=$(git rev-parse --short HEAD)
+          TAG="v1.0.0-${SHA}-linux-amd64"
+          IMAGE="ghcr.io/zared82/kbot"
+
+          docker build -t $IMAGE:$TAG .
+          docker push $IMAGE:$TAG
+
+          # update tag in helm values.yaml
+          sed -i "s/^  tag: .*/  tag: \"$TAG\"/" helm/values.yaml
+
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add helm/values.yaml
+          git commit -m "Update image tag $TAG" || true
+          git push
