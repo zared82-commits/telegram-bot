@@ -35,7 +35,7 @@ jobs:
         run: |
           SHA=$(git rev-parse --short HEAD)
           TAG="v1.0.0-${SHA}-linux-amd64"
-          IMAGE="ghcr.io/zared82/kbot"
+          IMAGE="ghcr.io/zared82-commits/kbot"
 
           docker build -t $IMAGE:$TAG .
           docker push $IMAGE:$TAG
